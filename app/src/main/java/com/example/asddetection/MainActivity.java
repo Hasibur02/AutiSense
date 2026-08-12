@@ -13,18 +13,20 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.ImageInfo;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -53,7 +55,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
 public class MainActivity extends AppCompatActivity {
 
     // ============================================================
@@ -61,8 +62,15 @@ public class MainActivity extends AppCompatActivity {
     // ============================================================
 
     private ImageView selectedImage;
+
+    private LinearLayout selectedImageContainer;
+
     private TextView resultText;
+    private TextView instructionText;
+
     private ProgressBar progressBar;
+
+    private FrameLayout cameraContainer;
 
     private PreviewView cameraPreview;
 
@@ -84,14 +92,24 @@ public class MainActivity extends AppCompatActivity {
     // CameraX
     // ============================================================
 
+    private ProcessCameraProvider cameraProvider;
+
     private ImageCapture imageCapture;
 
     private ExecutorService cameraExecutor;
 
 
     // ============================================================
+    // Camera State
+    // ============================================================
+
+    private boolean isCameraOpen = false;
+
+    private boolean isCapturing = false;
+
+
+    // ============================================================
     // Camera Selector
-    // Front Camera = Default
     // ============================================================
 
     private CameraSelector cameraSelector =
@@ -114,22 +132,25 @@ public class MainActivity extends AppCompatActivity {
                     new ActivityResultContracts.GetContent(),
                     uri -> {
 
-                        if (uri != null) {
-
-                            selectedImageUri = uri;
-
-                            showSelectedImage(uri);
-
-                            resultText.setText(
-                                    "Image selected.\nPress Predict."
-                            );
+                        if (uri == null) {
+                            return;
                         }
+
+                        selectedImageUri = uri;
+
+                        hideCamera();
+
+                        showGalleryImage(uri);
+
+                        resultText.setText(
+                                "Image selected.\nPress Predict."
+                        );
                     }
             );
 
 
     // ============================================================
-    // Camera Permission
+    // Camera Permission Launcher
     // ============================================================
 
     private final ActivityResultLauncher<String>
@@ -140,18 +161,18 @@ public class MainActivity extends AppCompatActivity {
 
                         if (granted) {
 
-                            openCamera();
+                            startCamera();
 
                         } else {
 
-                            hideCameraUI();
+                            hideCamera();
 
                             cameraButton.setEnabled(true);
 
                             Toast.makeText(
                                     MainActivity.this,
-                                    "Camera permission required",
-                                    Toast.LENGTH_SHORT
+                                    "Camera permission is required.",
+                                    Toast.LENGTH_LONG
                             ).show();
                         }
                     }
@@ -159,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // ============================================================
-    // onCreate
+    // ON CREATE
     // ============================================================
 
     @Override
@@ -173,6 +194,9 @@ public class MainActivity extends AppCompatActivity {
         // ========================================================
         // Find Views
         // ========================================================
+
+        cameraContainer =
+                findViewById(R.id.cameraContainer);
 
         cameraPreview =
                 findViewById(R.id.cameraPreview);
@@ -195,8 +219,14 @@ public class MainActivity extends AppCompatActivity {
         selectedImage =
                 findViewById(R.id.selectedImage);
 
+        selectedImageContainer =
+                findViewById(R.id.selectedImageContainer);
+
         resultText =
                 findViewById(R.id.resultText);
+
+        instructionText =
+                findViewById(R.id.instructionText);
 
         progressBar =
                 findViewById(R.id.progressBar);
@@ -208,6 +238,19 @@ public class MainActivity extends AppCompatActivity {
 
         cameraExecutor =
                 Executors.newSingleThreadExecutor();
+
+
+        // ========================================================
+        // Camera Preview Configuration
+        // ========================================================
+
+        cameraPreview.setImplementationMode(
+                PreviewView.ImplementationMode.COMPATIBLE
+        );
+
+        cameraPreview.setScaleType(
+                PreviewView.ScaleType.FILL_CENTER
+        );
 
 
         // ========================================================
@@ -234,37 +277,12 @@ public class MainActivity extends AppCompatActivity {
 
         cameraButton.setOnClickListener(v -> {
 
-            cameraButton.setEnabled(false);
+            if (isCameraOpen) {
 
-            cameraPreview.setVisibility(
-                    View.VISIBLE
-            );
-
-            captureButton.setVisibility(
-                    View.VISIBLE
-            );
-
-            switchCameraButton.setVisibility(
-                    View.VISIBLE
-            );
-
-
-            if (
-                    ContextCompat.checkSelfPermission(
-                            this,
-                            Manifest.permission.CAMERA
-                    )
-                            == PackageManager.PERMISSION_GRANTED
-            ) {
-
-                openCamera();
-
-            } else {
-
-                cameraPermissionLauncher.launch(
-                        Manifest.permission.CAMERA
-                );
+                return;
             }
+
+            requestCameraPermissionAndStart();
 
         });
 
@@ -274,6 +292,17 @@ public class MainActivity extends AppCompatActivity {
         // ========================================================
 
         switchCameraButton.setOnClickListener(v -> {
+
+            if (!isCameraOpen) {
+
+                Toast.makeText(
+                        MainActivity.this,
+                        "Camera is not open.",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
 
             switchCamera();
 
@@ -285,6 +314,17 @@ public class MainActivity extends AppCompatActivity {
         // ========================================================
 
         captureButton.setOnClickListener(v -> {
+
+            if (!isCameraOpen) {
+
+                Toast.makeText(
+                        MainActivity.this,
+                        "Please open the camera first.",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
 
             takePhoto();
 
@@ -311,166 +351,66 @@ public class MainActivity extends AppCompatActivity {
             uploadImage(selectedImageUri);
 
         });
-
     }
 
 
     // ============================================================
-    // Reset Home Page
+    // REQUEST CAMERA PERMISSION
     // ============================================================
 
-    private void resetHomePage() {
-
-        selectedImageUri = null;
-
-
-        // Clear image
-
-        selectedImage.setImageDrawable(null);
-
-        selectedImage.setVisibility(
-                View.GONE
-        );
-
-
-        // Hide camera
-
-        hideCameraUI();
-
-
-        // Buttons
-
-        cameraButton.setEnabled(true);
-
-        galleryButton.setEnabled(true);
-
-        predictButton.setEnabled(true);
-
-
-        // Predict hidden until image selected
-
-        predictButton.setVisibility(
-                View.GONE
-        );
-
-
-        // Front camera default
-
-        cameraSelector =
-                CameraSelector.DEFAULT_FRONT_CAMERA;
-
-
-        // Status
-
-        resultText.setText(
-                "Upload or capture an image to begin."
-        );
-
-
-        // Progress
-
-        progressBar.setVisibility(
-                View.GONE
-        );
-    }
-
-
-    // ============================================================
-    // Hide Camera UI
-    // ============================================================
-
-    private void hideCameraUI() {
-
-        cameraPreview.setVisibility(
-                View.GONE
-        );
-
-        captureButton.setVisibility(
-                View.GONE
-        );
-
-        switchCameraButton.setVisibility(
-                View.GONE
-        );
-    }
-
-
-    // ============================================================
-    // Show Selected Image
-    // ============================================================
-
-    private void showSelectedImage(Uri uri) {
-
-        try {
-
-            Bitmap bitmap =
-                    loadCorrectlyOrientedBitmap(uri);
-
-            if (bitmap != null) {
-
-                selectedImage.setImageBitmap(
-                        bitmap
-                );
-
-            } else {
-
-                selectedImage.setImageURI(uri);
-            }
-
-        } catch (Exception e) {
-
-            selectedImage.setImageURI(uri);
-        }
-
-
-        // Show image
-
-        selectedImage.setVisibility(
-                View.VISIBLE
-        );
-
-
-        // Show Predict button
-
-        predictButton.setVisibility(
-                View.VISIBLE
-        );
-
-        predictButton.setEnabled(true);
-    }
-
-
-    // ============================================================
-    // Switch Camera
-    // ============================================================
-
-    private void switchCamera() {
+    private void requestCameraPermissionAndStart() {
 
         if (
-                cameraSelector.equals(
-                        CameraSelector.DEFAULT_FRONT_CAMERA
+                ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.CAMERA
                 )
+                        == PackageManager.PERMISSION_GRANTED
         ) {
 
-            cameraSelector =
-                    CameraSelector.DEFAULT_BACK_CAMERA;
+            startCamera();
 
         } else {
 
-            cameraSelector =
-                    CameraSelector.DEFAULT_FRONT_CAMERA;
+            cameraPermissionLauncher.launch(
+                    Manifest.permission.CAMERA
+            );
         }
-
-
-        openCamera();
     }
 
 
     // ============================================================
-    // Open Camera
+    // START CAMERA
     // ============================================================
 
-    private void openCamera() {
+    private void startCamera() {
+
+        cameraButton.setEnabled(false);
+
+        cameraContainer.setVisibility(
+                View.VISIBLE
+        );
+
+        switchCameraButton.setVisibility(
+                View.VISIBLE
+        );
+
+        captureButton.setVisibility(
+                View.VISIBLE
+        );
+
+        switchCameraButton.setEnabled(false);
+
+        captureButton.setEnabled(false);
+
+        instructionText.setText(
+                "Camera is starting..."
+        );
+
+        resultText.setText(
+                "Starting camera..."
+        );
+
 
         ListenableFuture<ProcessCameraProvider>
                 cameraProviderFuture =
@@ -482,128 +422,32 @@ public class MainActivity extends AppCompatActivity {
 
                     try {
 
-                        ProcessCameraProvider
-                                cameraProvider =
+                        cameraProvider =
                                 cameraProviderFuture.get();
 
 
-                        // ====================================================
-                        // Preview
-                        // ====================================================
-
-                        Preview preview =
-                                new Preview.Builder()
-                                        .build();
-
-
-                        preview.setSurfaceProvider(
-                                cameraPreview
-                                        .getSurfaceProvider()
-                        );
-
-
-                        // ====================================================
-                        // Image Capture
-                        // ====================================================
-
-                        imageCapture =
-                                new ImageCapture.Builder()
-                                        .setCaptureMode(
-                                                ImageCapture
-                                                        .CAPTURE_MODE_MINIMIZE_LATENCY
-                                        )
-                                        .setTargetRotation(
-                                                cameraPreview
-                                                        .getDisplay()
-                                                        .getRotation()
-                                        )
-                                        .build();
-
-
-                        // ====================================================
-                        // Selected Camera
-                        // ====================================================
-
-                        CameraSelector selectedCamera =
-                                cameraSelector;
-
-
-                        // ====================================================
-                        // Check Camera
-                        // ====================================================
-
-                        if (
-                                !cameraProvider.hasCamera(
-                                        selectedCamera
-                                )
-                        ) {
-
-                            if (
-                                    cameraProvider.hasCamera(
-                                            CameraSelector
-                                                    .DEFAULT_BACK_CAMERA
-                                    )
-                            ) {
-
-                                cameraSelector =
-                                        CameraSelector
-                                                .DEFAULT_BACK_CAMERA;
-
-                            } else if (
-                                    cameraProvider.hasCamera(
-                                            CameraSelector
-                                                    .DEFAULT_FRONT_CAMERA
-                                    )
-                            ) {
-
-                                cameraSelector =
-                                        CameraSelector
-                                                .DEFAULT_FRONT_CAMERA;
-
-                            } else {
-
-                                throw new Exception(
-                                        "No camera found."
-                                );
-                            }
-
-
-                            selectedCamera =
-                                    cameraSelector;
-                        }
-
-
-                        // ====================================================
-                        // Unbind Previous Camera
-                        // ====================================================
-
-                        cameraProvider.unbindAll();
-
-
-                        // ====================================================
-                        // Bind Camera
-                        // ====================================================
-
-                        cameraProvider.bindToLifecycle(
-                                this,
-                                selectedCamera,
-                                preview,
-                                imageCapture
-                        );
-
-
-                        cameraButton.setEnabled(true);
+                        bindCamera();
 
 
                     } catch (Exception e) {
 
-                        hideCameraUI();
+                        isCameraOpen = false;
+
+                        hideCamera();
 
                         cameraButton.setEnabled(true);
 
+                        instructionText.setText(
+                                "Upload or capture an image to begin."
+                        );
+
+                        resultText.setText(
+                                "Camera could not be started."
+                        );
+
                         Toast.makeText(
                                 MainActivity.this,
-                                "Camera error: "
+                                "Camera start failed: "
                                         + e.getMessage(),
                                 Toast.LENGTH_LONG
                         ).show();
@@ -616,12 +460,265 @@ public class MainActivity extends AppCompatActivity {
 
 
     // ============================================================
-    // Take Photo
+    // BIND CAMERA
+    // ============================================================
+
+    private void bindCamera() {
+
+        if (cameraProvider == null) {
+
+            Toast.makeText(
+                    this,
+                    "Camera provider is not ready.",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+
+        try {
+
+            // ----------------------------------------------------
+            // Unbind previous camera
+            // ----------------------------------------------------
+
+            cameraProvider.unbindAll();
+
+
+            // ----------------------------------------------------
+            // Check requested camera
+            // ----------------------------------------------------
+
+            CameraSelector selectedCamera =
+                    cameraSelector;
+
+
+            if (
+                    !cameraProvider.hasCamera(
+                            selectedCamera
+                    )
+            ) {
+
+                // Try back camera
+
+                if (
+                        cameraProvider.hasCamera(
+                                CameraSelector.DEFAULT_BACK_CAMERA
+                        )
+                ) {
+
+                    cameraSelector =
+                            CameraSelector.DEFAULT_BACK_CAMERA;
+
+                    selectedCamera =
+                            cameraSelector;
+
+                }
+
+                // Try front camera
+
+                else if (
+                        cameraProvider.hasCamera(
+                                CameraSelector.DEFAULT_FRONT_CAMERA
+                        )
+                ) {
+
+                    cameraSelector =
+                            CameraSelector.DEFAULT_FRONT_CAMERA;
+
+                    selectedCamera =
+                            cameraSelector;
+
+                }
+
+                else {
+
+                    throw new Exception(
+                            "No usable camera found."
+                    );
+                }
+            }
+
+
+            // ----------------------------------------------------
+            // Preview
+            // ----------------------------------------------------
+
+            Preview preview =
+                    new Preview.Builder()
+                            .build();
+
+
+            preview.setSurfaceProvider(
+                    cameraPreview.getSurfaceProvider()
+            );
+
+
+            // ----------------------------------------------------
+            // Image Capture
+            // ----------------------------------------------------
+
+            imageCapture =
+                    new ImageCapture.Builder()
+                            .setCaptureMode(
+                                    ImageCapture
+                                            .CAPTURE_MODE_MINIMIZE_LATENCY
+                            )
+                            .build();
+
+
+            // ----------------------------------------------------
+            // Bind
+            // ----------------------------------------------------
+
+            cameraProvider.bindToLifecycle(
+                    this,
+                    selectedCamera,
+                    preview,
+                    imageCapture
+            );
+
+
+            // ----------------------------------------------------
+            // Camera successfully opened
+            // ----------------------------------------------------
+
+            isCameraOpen = true;
+
+            switchCameraButton.setEnabled(true);
+
+            captureButton.setEnabled(true);
+
+            cameraButton.setEnabled(true);
+
+            instructionText.setText(
+                    "Position your face inside the frame."
+            );
+
+            resultText.setText(
+                    "Camera ready. Capture your photo."
+            );
+
+
+        } catch (Exception e) {
+
+            isCameraOpen = false;
+
+            imageCapture = null;
+
+            hideCamera();
+
+            cameraButton.setEnabled(true);
+
+            Toast.makeText(
+                    MainActivity.this,
+                    "Camera binding failed:\n"
+                            + e.getMessage(),
+                    Toast.LENGTH_LONG
+            ).show();
+        }
+    }
+
+
+    // ============================================================
+    // SWITCH CAMERA
+    // ============================================================
+
+    private void switchCamera() {
+
+        if (
+                cameraProvider == null
+                        || !isCameraOpen
+        ) {
+
+            return;
+        }
+
+
+        switchCameraButton.setEnabled(false);
+
+        captureButton.setEnabled(false);
+
+
+        try {
+
+            // ----------------------------------------------------
+            // Stop current camera
+            // ----------------------------------------------------
+
+            cameraProvider.unbindAll();
+
+            imageCapture = null;
+
+            isCameraOpen = false;
+
+
+            // ----------------------------------------------------
+            // Change camera
+            // ----------------------------------------------------
+
+            if (
+                    cameraSelector.equals(
+                            CameraSelector.DEFAULT_FRONT_CAMERA
+                    )
+            ) {
+
+                cameraSelector =
+                        CameraSelector.DEFAULT_BACK_CAMERA;
+
+            } else {
+
+                cameraSelector =
+                        CameraSelector.DEFAULT_FRONT_CAMERA;
+            }
+
+
+            instructionText.setText(
+                    "Switching camera..."
+            );
+
+
+            // ----------------------------------------------------
+            // Re-bind
+            // ----------------------------------------------------
+
+            cameraPreview.postDelayed(
+                    () -> {
+
+                        bindCamera();
+
+                    },
+                    150
+            );
+
+
+        } catch (Exception e) {
+
+            switchCameraButton.setEnabled(true);
+
+            captureButton.setEnabled(true);
+
+            Toast.makeText(
+                    MainActivity.this,
+                    "Unable to switch camera:\n"
+                            + e.getMessage(),
+                    Toast.LENGTH_LONG
+            ).show();
+        }
+    }
+
+
+    // ============================================================
+    // TAKE PHOTO
     // ============================================================
 
     private void takePhoto() {
 
-        if (imageCapture == null) {
+        if (
+                imageCapture == null
+                        || !isCameraOpen
+        ) {
 
             Toast.makeText(
                     this,
@@ -633,12 +730,22 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        if (isCapturing) {
+
+            return;
+        }
+
+
+        isCapturing = true;
+
         captureButton.setEnabled(false);
 
+        switchCameraButton.setEnabled(false);
 
-        // ========================================================
-        // File Name
-        // ========================================================
+
+        // --------------------------------------------------------
+        // File name
+        // --------------------------------------------------------
 
         String fileName =
                 new SimpleDateFormat(
@@ -652,15 +759,15 @@ public class MainActivity extends AppCompatActivity {
         File rawPhotoFile =
                 new File(
                         getCacheDir(),
-                        "RAW_ASD_" +
-                                fileName +
-                                ".jpg"
+                        "RAW_ASD_"
+                                + fileName
+                                + ".jpg"
                 );
 
 
-        // ========================================================
+        // --------------------------------------------------------
         // Output
-        // ========================================================
+        // --------------------------------------------------------
 
         ImageCapture.OutputFileOptions
                 outputOptions =
@@ -672,9 +779,9 @@ public class MainActivity extends AppCompatActivity {
                         .build();
 
 
-        // ========================================================
+        // --------------------------------------------------------
         // Capture
-        // ========================================================
+        // --------------------------------------------------------
 
         imageCapture.takePicture(
                 outputOptions,
@@ -683,14 +790,15 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onImageSaved(
+                            @NonNull
                             ImageCapture.OutputFileResults
-                                    outputFileResults) {
+                                    outputFileResults
+                    ) {
+
+                        isCapturing = false;
+
 
                         try {
-
-                            // =================================================
-                            // Normalize orientation physically
-                            // =================================================
 
                             File normalizedFile =
                                     normalizeCameraImage(
@@ -698,22 +806,15 @@ public class MainActivity extends AppCompatActivity {
                                     );
 
 
-                            // =================================================
-                            // Delete RAW file
-                            // =================================================
-
                             if (
-                                    !rawPhotoFile
-                                            .equals(normalizedFile)
+                                    !rawPhotoFile.equals(
+                                            normalizedFile
+                                    )
                             ) {
 
                                 rawPhotoFile.delete();
                             }
 
-
-                            // =================================================
-                            // URI of normalized image
-                            // =================================================
 
                             selectedImageUri =
                                     Uri.fromFile(
@@ -721,36 +822,28 @@ public class MainActivity extends AppCompatActivity {
                                     );
 
 
-                            // =================================================
-                            // IMPORTANT:
-                            // Show actual captured image
-                            // on Home Page
-                            // =================================================
+                            // ------------------------------------------------
+                            // Show captured image
+                            // ------------------------------------------------
 
-                            showSelectedImage(
-                                    selectedImageUri
+                            showCameraImage(
+                                    normalizedFile
                             );
 
 
-                            // =================================================
-                            // Hide Camera
-                            // =================================================
+                            // ------------------------------------------------
+                            // Close camera
+                            // ------------------------------------------------
 
-                            hideCameraUI();
+                            hideCamera();
 
-
-                            // =================================================
-                            // Enable buttons
-                            // =================================================
 
                             cameraButton.setEnabled(true);
 
                             captureButton.setEnabled(true);
 
+                            switchCameraButton.setEnabled(true);
 
-                            // =================================================
-                            // Status
-                            // =================================================
 
                             resultText.setText(
                                     "Photo captured.\nPress Predict."
@@ -768,11 +861,13 @@ public class MainActivity extends AppCompatActivity {
 
                             captureButton.setEnabled(true);
 
+                            switchCameraButton.setEnabled(true);
+
                             cameraButton.setEnabled(true);
 
                             Toast.makeText(
                                     MainActivity.this,
-                                    "Image processing failed: "
+                                    "Image processing failed:\n"
                                             + e.getMessage(),
                                     Toast.LENGTH_LONG
                             ).show();
@@ -782,35 +877,296 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(
-                            ImageCaptureException exception) {
+                            @NonNull
+                            ImageCaptureException exception
+                    ) {
+
+                        isCapturing = false;
 
                         captureButton.setEnabled(true);
+
+                        switchCameraButton.setEnabled(true);
 
                         cameraButton.setEnabled(true);
 
 
                         Toast.makeText(
                                 MainActivity.this,
-                                "Capture failed: "
+                                "Capture failed:\n"
                                         + exception.getMessage(),
                                 Toast.LENGTH_LONG
                         ).show();
                     }
-
                 }
         );
     }
 
 
     // ============================================================
-    // Normalize Camera Image
-    //
-    // This is the important fix for the rotation problem.
-    //
-    // It reads EXIF orientation, physically rotates the bitmap,
-    // then saves a NEW normal JPEG.
-    //
-    // Therefore backend + ResultActivity receive a normal image.
+    // HIDE CAMERA
+    // ============================================================
+
+    private void hideCamera() {
+
+        isCameraOpen = false;
+
+        isCapturing = false;
+
+        imageCapture = null;
+
+
+        if (cameraProvider != null) {
+
+            try {
+
+                cameraProvider.unbindAll();
+
+            } catch (Exception ignored) {
+            }
+        }
+
+
+        cameraContainer.setVisibility(
+                View.GONE
+        );
+
+        switchCameraButton.setVisibility(
+                View.GONE
+        );
+
+        captureButton.setVisibility(
+                View.GONE
+        );
+
+
+        switchCameraButton.setEnabled(
+                false
+        );
+
+        captureButton.setEnabled(
+                false
+        );
+    }
+
+
+    // ============================================================
+    // RESET HOME PAGE
+    // ============================================================
+
+    private void resetHomePage() {
+
+        selectedImageUri = null;
+
+
+        // --------------------------------------------------------
+        // Clear selected image
+        // --------------------------------------------------------
+
+        selectedImage.setImageDrawable(null);
+
+        selectedImage.setVisibility(
+                View.GONE
+        );
+
+
+        selectedImageContainer.setVisibility(
+                View.GONE
+        );
+
+
+        // --------------------------------------------------------
+        // Hide camera
+        // --------------------------------------------------------
+
+        hideCamera();
+
+
+        // --------------------------------------------------------
+        // Buttons
+        // --------------------------------------------------------
+
+        cameraButton.setEnabled(true);
+
+        galleryButton.setEnabled(true);
+
+        predictButton.setEnabled(true);
+
+
+        predictButton.setVisibility(
+                View.GONE
+        );
+
+
+        // --------------------------------------------------------
+        // Default camera
+        // --------------------------------------------------------
+
+        cameraSelector =
+                CameraSelector.DEFAULT_FRONT_CAMERA;
+
+
+        // --------------------------------------------------------
+        // Status
+        // --------------------------------------------------------
+
+        instructionText.setText(
+                "Select an image or capture a new one to begin."
+        );
+
+        resultText.setText(
+                "Ready for image analysis."
+        );
+
+
+        // --------------------------------------------------------
+        // Progress
+        // --------------------------------------------------------
+
+        progressBar.setVisibility(
+                View.GONE
+        );
+    }
+
+
+    // ============================================================
+    // SHOW GALLERY IMAGE
+    // ============================================================
+
+    private void showGalleryImage(Uri uri) {
+
+        try {
+
+            Bitmap bitmap =
+                    loadCorrectlyOrientedBitmap(uri);
+
+
+            if (bitmap == null) {
+
+                Toast.makeText(
+                        this,
+                        "Unable to display selected image.",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+
+            selectedImage.setImageBitmap(bitmap);
+
+            selectedImage.setVisibility(
+                    View.VISIBLE
+            );
+
+
+            selectedImageContainer.setVisibility(
+                    View.VISIBLE
+            );
+
+
+            predictButton.setVisibility(
+                    View.VISIBLE
+            );
+
+            predictButton.setEnabled(true);
+
+
+            selectedImage.requestLayout();
+
+            selectedImage.invalidate();
+
+
+        } catch (Exception e) {
+
+            Toast.makeText(
+                    this,
+                    "Image display error:\n"
+                            + e.getMessage(),
+                    Toast.LENGTH_LONG
+            ).show();
+        }
+    }
+
+
+    // ============================================================
+    // SHOW CAMERA IMAGE
+    // ============================================================
+
+    private void showCameraImage(File imageFile) {
+
+        try {
+
+            if (
+                    imageFile == null
+                            || !imageFile.exists()
+            ) {
+
+                Toast.makeText(
+                        this,
+                        "Captured image file not found.",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+
+            Bitmap bitmap =
+                    BitmapFactory.decodeFile(
+                            imageFile.getAbsolutePath()
+                    );
+
+
+            if (bitmap == null) {
+
+                Toast.makeText(
+                        this,
+                        "Unable to display captured image.",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+
+            selectedImage.setImageBitmap(bitmap);
+
+            selectedImage.setVisibility(
+                    View.VISIBLE
+            );
+
+
+            selectedImageContainer.setVisibility(
+                    View.VISIBLE
+            );
+
+
+            predictButton.setVisibility(
+                    View.VISIBLE
+            );
+
+            predictButton.setEnabled(true);
+
+
+            selectedImage.requestLayout();
+
+            selectedImage.invalidate();
+
+
+        } catch (Exception e) {
+
+            Toast.makeText(
+                    this,
+                    "Camera image display error:\n"
+                            + e.getMessage(),
+                    Toast.LENGTH_LONG
+            ).show();
+        }
+    }
+
+
+    // ============================================================
+    // NORMALIZE CAMERA IMAGE
     // ============================================================
 
     private File normalizeCameraImage(
@@ -831,10 +1187,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        // ========================================================
-        // Read EXIF
-        // ========================================================
-
         int orientation =
                 ExifInterface.ORIENTATION_NORMAL;
 
@@ -850,17 +1202,12 @@ public class MainActivity extends AppCompatActivity {
             orientation =
                     exif.getAttributeInt(
                             ExifInterface.TAG_ORIENTATION,
-                            ExifInterface
-                                    .ORIENTATION_NORMAL
+                            ExifInterface.ORIENTATION_NORMAL
                     );
 
         } catch (Exception ignored) {
         }
 
-
-        // ========================================================
-        // Transformation
-        // ========================================================
 
         Matrix matrix =
                 new Matrix();
@@ -906,7 +1253,6 @@ public class MainActivity extends AppCompatActivity {
             case ExifInterface.ORIENTATION_TRANSPOSE:
 
                 matrix.postRotate(90);
-
                 matrix.postScale(-1, 1);
 
                 break;
@@ -915,7 +1261,6 @@ public class MainActivity extends AppCompatActivity {
             case ExifInterface.ORIENTATION_TRANSVERSE:
 
                 matrix.postRotate(270);
-
                 matrix.postScale(-1, 1);
 
                 break;
@@ -950,10 +1295,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        // ========================================================
-        // Create normalized file
-        // ========================================================
-
         String normalizedName =
                 inputFile.getName()
                         .replace(
@@ -987,10 +1328,6 @@ public class MainActivity extends AppCompatActivity {
         outputStream.close();
 
 
-        // ========================================================
-        // Recycle
-        // ========================================================
-
         if (
                 normalizedBitmap != bitmap
         ) {
@@ -999,22 +1336,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        normalizedBitmap.recycle();
-
-
-        // ========================================================
-        // IMPORTANT:
-        // The new JPEG has normal pixel orientation.
-        // No EXIF rotation is needed.
-        // ========================================================
-
         return outputFile;
     }
 
 
     // ============================================================
-    // Load Bitmap With Correct Orientation
-    // For Gallery Images
+    // LOAD GALLERY IMAGE
     // ============================================================
 
     private Bitmap loadCorrectlyOrientedBitmap(
@@ -1047,10 +1374,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        // ========================================================
-        // Read EXIF
-        // ========================================================
-
         int orientation =
                 ExifInterface.ORIENTATION_NORMAL;
 
@@ -1073,8 +1396,7 @@ public class MainActivity extends AppCompatActivity {
                 orientation =
                         exif.getAttributeInt(
                                 ExifInterface.TAG_ORIENTATION,
-                                ExifInterface
-                                        .ORIENTATION_NORMAL
+                                ExifInterface.ORIENTATION_NORMAL
                         );
 
 
@@ -1084,10 +1406,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception ignored) {
         }
 
-
-        // ========================================================
-        // Matrix
-        // ========================================================
 
         Matrix matrix =
                 new Matrix();
@@ -1133,7 +1451,6 @@ public class MainActivity extends AppCompatActivity {
             case ExifInterface.ORIENTATION_TRANSPOSE:
 
                 matrix.postRotate(90);
-
                 matrix.postScale(-1, 1);
 
                 break;
@@ -1142,7 +1459,6 @@ public class MainActivity extends AppCompatActivity {
             case ExifInterface.ORIENTATION_TRANSVERSE:
 
                 matrix.postRotate(270);
-
                 matrix.postScale(-1, 1);
 
                 break;
@@ -1153,10 +1469,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
-
-        // ========================================================
-        // Apply
-        // ========================================================
 
         if (!matrix.isIdentity()) {
 
@@ -1172,9 +1484,7 @@ public class MainActivity extends AppCompatActivity {
                     );
 
 
-            if (
-                    rotatedBitmap != bitmap
-            ) {
+            if (rotatedBitmap != bitmap) {
 
                 bitmap.recycle();
             }
@@ -1189,7 +1499,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // ============================================================
-    // Upload Image
+    // UPLOAD IMAGE
     // ============================================================
 
     private void uploadImage(
@@ -1217,10 +1527,6 @@ public class MainActivity extends AppCompatActivity {
                     );
 
 
-            // ====================================================
-            // Request Body
-            // ====================================================
-
             RequestBody requestFile =
                     RequestBody.create(
                             MediaType.parse(
@@ -1229,10 +1535,6 @@ public class MainActivity extends AppCompatActivity {
                             imageFile
                     );
 
-
-            // ====================================================
-            // Multipart
-            // ====================================================
 
             MultipartBody.Part body =
                     MultipartBody.Part
@@ -1243,10 +1545,6 @@ public class MainActivity extends AppCompatActivity {
                             );
 
 
-            // ====================================================
-            // API
-            // ====================================================
-
             ApiService apiService =
                     RetrofitClient
                             .getApiService();
@@ -1255,10 +1553,6 @@ public class MainActivity extends AppCompatActivity {
             Call<ResponseBody> call =
                     apiService.predict(body);
 
-
-            // ====================================================
-            // API Call
-            // ====================================================
 
             call.enqueue(
                     new Callback<ResponseBody>() {
@@ -1297,10 +1591,6 @@ public class MainActivity extends AppCompatActivity {
                                             response.body()
                                                     .string();
 
-
-                                    // ======================================
-                                    // JSON
-                                    // ======================================
 
                                     JSONObject json =
                                             new JSONObject(
@@ -1346,10 +1636,6 @@ public class MainActivity extends AppCompatActivity {
                                             );
 
 
-                                    // ======================================
-                                    // Percentages
-                                    // ======================================
-
                                     double confidencePercent =
                                             confidence * 100;
 
@@ -1362,10 +1648,6 @@ public class MainActivity extends AppCompatActivity {
                                             nonAsdProbability * 100;
 
 
-                                    // ======================================
-                                    // Result Activity
-                                    // ======================================
-
                                     Intent intent =
                                             new Intent(
                                                     MainActivity.this,
@@ -1373,23 +1655,17 @@ public class MainActivity extends AppCompatActivity {
                                             );
 
 
-                                    // Original image
-
                                     intent.putExtra(
                                             "original_image_uri",
                                             imageUri.toString()
                                     );
 
 
-                                    // Prediction
-
                                     intent.putExtra(
                                             "prediction",
                                             prediction
                                     );
 
-
-                                    // Confidence
 
                                     intent.putExtra(
                                             "confidence",
@@ -1401,8 +1677,6 @@ public class MainActivity extends AppCompatActivity {
                                     );
 
 
-                                    // ASD Probability
-
                                     intent.putExtra(
                                             "asd_probability",
                                             String.format(
@@ -1412,8 +1686,6 @@ public class MainActivity extends AppCompatActivity {
                                             )
                                     );
 
-
-                                    // Non-ASD Probability
 
                                     intent.putExtra(
                                             "non_asd_probability",
@@ -1425,15 +1697,11 @@ public class MainActivity extends AppCompatActivity {
                                     );
 
 
-                                    // Grad-CAM Overlay
-
                                     intent.putExtra(
                                             "gradcam_overlay",
                                             gradcamOverlay
                                     );
 
-
-                                    // Grad-CAM Heatmap
 
                                     intent.putExtra(
                                             "gradcam_heatmap",
@@ -1441,20 +1709,10 @@ public class MainActivity extends AppCompatActivity {
                                     );
 
 
-                                    // ======================================
-                                    // Reset after returning
-                                    // ======================================
-
                                     resetWhenResume = true;
 
 
-                                    // ======================================
-                                    // Open Result
-                                    // ======================================
-
-                                    startActivity(
-                                            intent
-                                    );
+                                    startActivity(intent);
 
 
                                 } catch (Exception e) {
@@ -1474,7 +1732,6 @@ public class MainActivity extends AppCompatActivity {
                                 predictButton
                                         .setEnabled(true);
 
-
                                 resultText.setText(
                                         "Server Error: "
                                                 + response.code()
@@ -1482,10 +1739,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
-
-                        // ==================================================
-                        // Connection Failure
-                        // ==================================================
 
                         @Override
                         public void onFailure(
@@ -1507,7 +1760,6 @@ public class MainActivity extends AppCompatActivity {
                                             + t.getMessage()
                             );
                         }
-
                     }
             );
 
@@ -1531,16 +1783,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     // ============================================================
-    // Convert URI → File
+    // URI -> FILE
     // ============================================================
 
     private File createTempFileFromUri(
             Uri uri
     ) throws IOException {
 
-        // ========================================================
-        // Camera File
-        // ========================================================
+        // --------------------------------------------------------
+        // Camera file
+        // --------------------------------------------------------
 
         if ("file".equals(uri.getScheme())) {
 
@@ -1562,9 +1814,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        // ========================================================
-        // Gallery File
-        // ========================================================
+        // --------------------------------------------------------
+        // Gallery file
+        // --------------------------------------------------------
 
         ContentResolver resolver =
                 getContentResolver();
@@ -1582,13 +1834,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         try (
-
                 InputStream inputStream =
                         resolver.openInputStream(uri);
 
                 FileOutputStream outputStream =
                         new FileOutputStream(file)
-
         ) {
 
             if (inputStream == null) {
@@ -1626,7 +1876,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // ============================================================
-    // Get File Name
+    // GET FILE NAME
     // ============================================================
 
     private String getFileName(
@@ -1700,7 +1950,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // ============================================================
-    // onResume
+    // ON RESUME
     // ============================================================
 
     @Override
@@ -1719,13 +1969,52 @@ public class MainActivity extends AppCompatActivity {
 
 
     // ============================================================
-    // onDestroy
+    // ON PAUSE
+    // ============================================================
+
+    @Override
+    protected void onPause() {
+
+        super.onPause();
+
+
+        // Stop camera when activity goes to background
+
+        if (cameraProvider != null) {
+
+            try {
+
+                cameraProvider.unbindAll();
+
+            } catch (Exception ignored) {
+            }
+
+            isCameraOpen = false;
+
+            imageCapture = null;
+        }
+    }
+
+
+    // ============================================================
+    // ON DESTROY
     // ============================================================
 
     @Override
     protected void onDestroy() {
 
         super.onDestroy();
+
+
+        if (cameraProvider != null) {
+
+            try {
+
+                cameraProvider.unbindAll();
+
+            } catch (Exception ignored) {
+            }
+        }
 
 
         if (cameraExecutor != null) {

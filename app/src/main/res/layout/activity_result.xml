@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA"
+    android:background="#F4F7FB"
     android:fillViewport="true">
 
     <LinearLayout
@@ -15,31 +15,7 @@
 
 
         <!-- ================================================= -->
-        <!-- Header -->
-        <!-- ================================================= -->
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="ASD Detection Result"
-            android:textSize="27sp"
-            android:textStyle="bold"
-            android:textColor="#172033"
-            android:gravity="center"
-            android:layout_marginBottom="6dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="AI-assisted facial image analysis"
-            android:textSize="14sp"
-            android:textColor="#6B7280"
-            android:gravity="center"
-            android:layout_marginBottom="20dp" />
-
-
-        <!-- ================================================= -->
-        <!-- Prediction Card -->
+        <!-- HEADER -->
         <!-- ================================================= -->
 
         <LinearLayout
@@ -47,18 +23,52 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="24dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="22dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ASD Detection Result"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#172033"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="AI-assisted facial image analysis"
+                android:textSize="14sp"
+                android:textColor="#64748B"
+                android:gravity="center"
+                android:layout_marginTop="6dp" />
+
+        </LinearLayout>
+
+
+        <!-- ================================================= -->
+        <!-- RESULT CARD -->
+        <!-- ================================================= -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
             android:background="#FFFFFF"
-            android:elevation="4dp"
-            android:layout_marginBottom="18dp">
+            android:elevation="5dp"
+            android:padding="24dp"
+            android:layout_marginBottom="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Prediction"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#6B7280"
+                android:textColor="#64748B"
+                android:gravity="center"
                 android:layout_marginBottom="8dp" />
 
             <TextView
@@ -66,7 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ASD"
-                android:textSize="30sp"
+                android:textSize="32sp"
                 android:textStyle="bold"
                 android:textColor="#172033"
                 android:gravity="center" />
@@ -77,15 +87,16 @@
                 android:layout_height="wrap_content"
                 android:text="Confidence: 95.00%"
                 android:textSize="16sp"
-                android:textColor="#2563EB"
                 android:textStyle="bold"
+                android:textColor="#2563EB"
+                android:gravity="center"
                 android:layout_marginTop="10dp" />
 
         </LinearLayout>
 
 
         <!-- ================================================= -->
-        <!-- Prediction Probability -->
+        <!-- PROBABILITY TITLE -->
         <!-- ================================================= -->
 
         <TextView
@@ -99,16 +110,16 @@
 
 
         <!-- ================================================= -->
-        <!-- ASD Probability -->
+        <!-- ASD PROBABILITY CARD -->
         <!-- ================================================= -->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
             android:background="#FFFFFF"
-            android:elevation="2dp"
+            android:elevation="3dp"
+            android:padding="17dp"
             android:layout_marginBottom="10dp">
 
             <LinearLayout
@@ -144,23 +155,23 @@
                 android:max="100"
                 android:progress="0"
                 android:progressTint="#EF4444"
-                android:layout_marginTop="10dp" />
+                android:layout_marginTop="11dp" />
 
         </LinearLayout>
 
 
         <!-- ================================================= -->
-        <!-- Non-ASD Probability -->
+        <!-- NON ASD PROBABILITY CARD -->
         <!-- ================================================= -->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
             android:background="#FFFFFF"
-            android:elevation="2dp"
-            android:layout_marginBottom="22dp">
+            android:elevation="3dp"
+            android:padding="17dp"
+            android:layout_marginBottom="24dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -195,13 +206,13 @@
                 android:max="100"
                 android:progress="0"
                 android:progressTint="#3B82F6"
-                android:layout_marginTop="10dp" />
+                android:layout_marginTop="11dp" />
 
         </LinearLayout>
 
 
         <!-- ================================================= -->
-        <!-- Original Image -->
+        <!-- ORIGINAL IMAGE SECTION -->
         <!-- ================================================= -->
 
         <TextView
@@ -211,20 +222,30 @@
             android:textSize="21sp"
             android:textStyle="bold"
             android:textColor="#172033"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="11dp" />
 
-        <ImageView
-            android:id="@+id/originalImage"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:scaleType="centerCrop"
-            android:background="#E5E7EB"
-            android:contentDescription="Original facial image"
-            android:layout_marginBottom="24dp" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:elevation="3dp"
+            android:padding="12dp"
+            android:layout_marginBottom="25dp">
+
+            <ImageView
+                android:id="@+id/originalImage"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:scaleType="centerCrop"
+                android:background="#E2E8F0"
+                android:contentDescription="Original facial image" />
+
+        </LinearLayout>
 
 
         <!-- ================================================= -->
-        <!-- Explainable AI -->
+        <!-- EXPLAINABLE AI -->
         <!-- ================================================= -->
 
         <TextView
@@ -241,12 +262,13 @@
             android:layout_height="wrap_content"
             android:text="Grad-CAM highlights the facial regions that contributed most to the model's prediction."
             android:textSize="14sp"
-            android:textColor="#6B7280"
-            android:layout_marginBottom="14dp" />
+            android:textColor="#64748B"
+            android:lineSpacingExtra="2dp"
+            android:layout_marginBottom="15dp" />
 
 
         <!-- ================================================= -->
-        <!-- Heatmap + Overlay Side by Side -->
+        <!-- GRAD-CAM IMAGES -->
         <!-- ================================================= -->
 
         <LinearLayout
@@ -254,25 +276,26 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:weightSum="2"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="25dp">
 
 
-            <!-- ================================================= -->
-            <!-- LEFT: Heatmap -->
-            <!-- ================================================= -->
+            <!-- HEATMAP -->
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:layout_marginEnd="6dp">
+                android:background="#FFFFFF"
+                android:elevation="3dp"
+                android:padding="10dp"
+                android:layout_marginEnd="5dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Heatmap"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     android:textColor="#374151"
                     android:gravity="center"
@@ -283,28 +306,29 @@
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
                     android:scaleType="centerCrop"
-                    android:background="#E5E7EB"
+                    android:background="#E2E8F0"
                     android:contentDescription="Grad-CAM heatmap" />
 
             </LinearLayout>
 
 
-            <!-- ================================================= -->
-            <!-- RIGHT: Overlay -->
-            <!-- ================================================= -->
+            <!-- OVERLAY -->
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:layout_marginStart="6dp">
+                android:background="#FFFFFF"
+                android:elevation="3dp"
+                android:padding="10dp"
+                android:layout_marginStart="5dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Overlay"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     android:textColor="#374151"
                     android:gravity="center"
@@ -315,7 +339,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
                     android:scaleType="centerCrop"
-                    android:background="#E5E7EB"
+                    android:background="#E2E8F0"
                     android:contentDescription="Grad-CAM overlay" />
 
             </LinearLayout>
@@ -324,16 +348,17 @@
 
 
         <!-- ================================================= -->
-        <!-- Important Notice -->
+        <!-- IMPORTANT NOTICE -->
         <!-- ================================================= -->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp"
+            android:gravity="center"
             android:background="#FFF7ED"
-            android:layout_marginBottom="14dp">
+            android:padding="15dp"
+            android:layout_marginBottom="18dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -343,7 +368,7 @@
                 android:textStyle="bold"
                 android:textColor="#9A3412"
                 android:gravity="center"
-                android:layout_marginBottom="3dp" />
+                android:layout_marginBottom="4dp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -357,7 +382,7 @@
 
 
         <!-- ================================================= -->
-        <!-- Action Buttons -->
+        <!-- ACTION BUTTONS -->
         <!-- ================================================= -->
 
         <LinearLayout
@@ -365,41 +390,74 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:weightSum="2"
-            android:layout_marginBottom="24dp">
-
-            <!-- ================================================= -->
-            <!-- Save Result -->
-            <!-- ================================================= -->
+            android:layout_marginBottom="25dp">
 
             <Button
                 android:id="@+id/saveResultButton"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:layout_weight="1"
                 android:text="↓ Save Result"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#172033"
                 android:layout_marginEnd="6dp" />
-
-
-            <!-- ================================================= -->
-            <!-- Try Another Image -->
-            <!-- ================================================= -->
 
             <Button
                 android:id="@+id/backButton"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="52dp"
                 android:layout_weight="1"
                 android:text="Another Image"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textAllCaps="false"
+                android:textColor="#2563EB"
+                android:backgroundTint="#E8F0FE"
                 android:layout_marginStart="6dp" />
 
         </LinearLayout>
 
+
+        <!-- ================================================= -->
+        <!-- FOOTER -->
+        <!-- ================================================= -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="20dp">
+
+            <View
+                android:layout_width="55dp"
+                android:layout_height="2dp"
+                android:background="#CBD5E1"
+                android:layout_marginBottom="11dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ASD Detection using RegNetY-800MF"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#475569"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="AI-Based Research Project"
+                android:textSize="12sp"
+                android:textColor="#94A3B8"
+                android:gravity="center"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

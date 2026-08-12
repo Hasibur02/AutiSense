@@ -1,48 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- ================================================= -->
-    <!-- Internet Permission -->
-    <!-- ================================================= -->
+    <!-- Camera -->
+    <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-permission
-        android:name="android.permission.INTERNET" />
-
-
-    <!-- ================================================= -->
-    <!-- Camera Permission -->
-    <!-- ================================================= -->
-
-    <uses-permission
-        android:name="android.permission.CAMERA" />
-
-
-    <!-- ================================================= -->
-    <!-- Storage Permission -->
-    <!-- Android 9 and below only -->
-    <!-- ================================================= -->
-
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
-
-
-    <!-- ================================================= -->
-    <!-- Camera Feature -->
-    <!-- ================================================= -->
-
+    <!-- Camera is optional -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
-
-
-    <!-- ================================================= -->
-    <!-- Application -->
-    <!-- ================================================= -->
 
     <application
         android:allowBackup="true"
@@ -55,21 +24,13 @@
         android:theme="@style/Theme.ASDDetection"
         android:usesCleartextTraffic="true">
 
-
-        <!-- ================================================= -->
-        <!-- Result Activity -->
-        <!-- ================================================= -->
-
+        <!-- Result Page -->
         <activity
             android:name=".ResultActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
-
-        <!-- ================================================= -->
-        <!-- Main Activity -->
-        <!-- ================================================= -->
-
+        <!-- Home Page -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -86,7 +47,6 @@
             </intent-filter>
 
         </activity>
-
 
     </application>
 
