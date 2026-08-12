@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+
+        <!-- ================================================= -->
+        <!-- Header -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ASD Detection Result"
+            android:textSize="27sp"
+            android:textStyle="bold"
+            android:textColor="#172033"
+            android:gravity="center"
+            android:layout_marginBottom="6dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="AI-assisted facial image analysis"
+            android:textSize="14sp"
+            android:textColor="#6B7280"
+            android:gravity="center"
+            android:layout_marginBottom="20dp" />
+
+
+        <!-- ================================================= -->
+        <!-- Prediction Card -->
+        <!-- ================================================= -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="24dp"
+            android:background="#FFFFFF"
+            android:elevation="4dp"
+            android:layout_marginBottom="18dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Prediction"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#6B7280"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/predictionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ASD"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="#172033"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/confidenceText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confidence: 95.00%"
+                android:textSize="16sp"
+                android:textColor="#2563EB"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+
+
+        <!-- ================================================= -->
+        <!-- Prediction Probability -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Prediction Probability"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:textColor="#172033"
+            android:layout_marginBottom="12dp" />
+
+
+        <!-- ================================================= -->
+        <!-- ASD Probability -->
+        <!-- ================================================= -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#FFFFFF"
+            android:elevation="2dp"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="ASD Probability"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#374151" />
+
+                <TextView
+                    android:id="@+id/asdProbabilityText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#DC2626" />
+
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/asdProgressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="#EF4444"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+
+
+        <!-- ================================================= -->
+        <!-- Non-ASD Probability -->
+        <!-- ================================================= -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#FFFFFF"
+            android:elevation="2dp"
+            android:layout_marginBottom="22dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Non-ASD Probability"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#374151" />
+
+                <TextView
+                    android:id="@+id/nonAsdProbabilityText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#2563EB" />
+
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/nonAsdProgressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="#3B82F6"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+
+
+        <!-- ================================================= -->
+        <!-- Original Image -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Original Image"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:textColor="#172033"
+            android:layout_marginBottom="10dp" />
+
+        <ImageView
+            android:id="@+id/originalImage"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:scaleType="centerCrop"
+            android:background="#E5E7EB"
+            android:contentDescription="Original facial image"
+            android:layout_marginBottom="24dp" />
+
+
+        <!-- ================================================= -->
+        <!-- Explainable AI -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Explainable AI"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:textColor="#172033"
+            android:layout_marginBottom="6dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Grad-CAM highlights the facial regions that contributed most to the model's prediction."
+            android:textSize="14sp"
+            android:textColor="#6B7280"
+            android:layout_marginBottom="14dp" />
+
+
+        <!-- ================================================= -->
+        <!-- Heatmap + Overlay Side by Side -->
+        <!-- ================================================= -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginBottom="24dp">
+
+
+            <!-- ================================================= -->
+            <!-- LEFT: Heatmap -->
+            <!-- ================================================= -->
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="6dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Heatmap"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#374151"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp" />
+
+                <ImageView
+                    android:id="@+id/heatmapImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:scaleType="centerCrop"
+                    android:background="#E5E7EB"
+                    android:contentDescription="Grad-CAM heatmap" />
+
+            </LinearLayout>
+
+
+            <!-- ================================================= -->
+            <!-- RIGHT: Overlay -->
+            <!-- ================================================= -->
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="6dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Overlay"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#374151"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp" />
+
+                <ImageView
+                    android:id="@+id/gradcamImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:scaleType="centerCrop"
+                    android:background="#E5E7EB"
+                    android:contentDescription="Grad-CAM overlay" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <!-- ================================================= -->
+        <!-- Important Notice -->
+        <!-- ================================================= -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:background="#FFF7ED"
+            android:layout_marginBottom="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Important Notice"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#9A3412"
+                android:gravity="center"
+                android:layout_marginBottom="3dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="⚠ Screening result only — not a medical diagnosis."
+                android:textSize="12sp"
+                android:textColor="#7C2D12"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+
+        <!-- ================================================= -->
+        <!-- Action Buttons -->
+        <!-- ================================================= -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginBottom="24dp">
+
+            <!-- ================================================= -->
+            <!-- Save Result -->
+            <!-- ================================================= -->
+
+            <Button
+                android:id="@+id/saveResultButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="↓ Save Result"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:layout_marginEnd="6dp" />
+
+
+            <!-- ================================================= -->
+            <!-- Try Another Image -->
+            <!-- ================================================= -->
+
+            <Button
+                android:id="@+id/backButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Another Image"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:layout_marginStart="6dp" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</ScrollView>
