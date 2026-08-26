@@ -4,14 +4,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F7FB"
-    android:fillViewport="true">
+    android:background="@color/app_background"
+    android:fillViewport="true"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="12dp">
 
 
         <!-- ================================================= -->
@@ -24,7 +28,7 @@
             android:orientation="vertical"
             android:gravity="center"
             android:paddingTop="10dp"
-            android:paddingBottom="22dp">
+            android:paddingBottom="18dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -32,7 +36,7 @@
                 android:text="ASD Detection Result"
                 android:textSize="28sp"
                 android:textStyle="bold"
-                android:textColor="#172033"
+                android:textColor="@color/cyan"
                 android:gravity="center" />
 
             <TextView
@@ -40,9 +44,23 @@
                 android:layout_height="wrap_content"
                 android:text="AI-assisted facial image analysis"
                 android:textSize="14sp"
-                android:textColor="#64748B"
+                android:textColor="@color/header_subtitle"
                 android:gravity="center"
                 android:layout_marginTop="6dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RegNetY-800MF"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_navy"
+                android:background="@drawable/bg_primary_button"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:layout_marginTop="9dp" />
 
         </LinearLayout>
 
@@ -56,10 +74,10 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:background="#FFFFFF"
-            android:elevation="5dp"
-            android:padding="24dp"
-            android:layout_marginBottom="20dp">
+            android:background="@drawable/bg_card"
+            android:elevation="4dp"
+            android:padding="22dp"
+            android:layout_marginBottom="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -67,9 +85,9 @@
                 android:text="Prediction"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#64748B"
+                android:textColor="@color/text_secondary"
                 android:gravity="center"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
 
             <TextView
                 android:id="@+id/predictionText"
@@ -78,7 +96,7 @@
                 android:text="ASD"
                 android:textSize="32sp"
                 android:textStyle="bold"
-                android:textColor="#172033"
+                android:textColor="@color/text_primary"
                 android:gravity="center" />
 
             <TextView
@@ -88,9 +106,9 @@
                 android:text="Confidence: 95.00%"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#2563EB"
+                android:textColor="@color/primary_navy"
                 android:gravity="center"
-                android:layout_marginTop="10dp" />
+                android:layout_marginTop="8dp" />
 
         </LinearLayout>
 
@@ -105,8 +123,8 @@
             android:text="Prediction Probability"
             android:textSize="21sp"
             android:textStyle="bold"
-            android:textColor="#172033"
-            android:layout_marginBottom="12dp" />
+            android:textColor="@color/cyan"
+            android:layout_marginBottom="10dp" />
 
 
         <!-- ================================================= -->
@@ -117,10 +135,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#FFFFFF"
+            android:background="@drawable/bg_card"
             android:elevation="3dp"
-            android:padding="17dp"
-            android:layout_marginBottom="10dp">
+            android:padding="16dp"
+            android:layout_marginBottom="9dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -134,7 +152,7 @@
                     android:text="ASD Probability"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#374151" />
+                    android:textColor="@color/text_primary" />
 
                 <TextView
                     android:id="@+id/asdProbabilityText"
@@ -143,7 +161,7 @@
                     android:text="0%"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#DC2626" />
+                    android:textColor="@color/asd_color" />
 
             </LinearLayout>
 
@@ -151,11 +169,11 @@
                 android:id="@+id/asdProgressBar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
+                android:layout_height="9dp"
                 android:max="100"
                 android:progress="0"
-                android:progressTint="#EF4444"
-                android:layout_marginTop="11dp" />
+                android:progressTint="@color/asd_color"
+                android:layout_marginTop="10dp" />
 
         </LinearLayout>
 
@@ -168,10 +186,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#FFFFFF"
+            android:background="@drawable/bg_card"
             android:elevation="3dp"
-            android:padding="17dp"
-            android:layout_marginBottom="24dp">
+            android:padding="16dp"
+            android:layout_marginBottom="18dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -185,7 +203,7 @@
                     android:text="Non-ASD Probability"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#374151" />
+                    android:textColor="@color/text_primary" />
 
                 <TextView
                     android:id="@+id/nonAsdProbabilityText"
@@ -194,7 +212,7 @@
                     android:text="0%"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#2563EB" />
+                    android:textColor="@color/non_asd_color" />
 
             </LinearLayout>
 
@@ -202,11 +220,11 @@
                 android:id="@+id/nonAsdProgressBar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
+                android:layout_height="9dp"
                 android:max="100"
                 android:progress="0"
-                android:progressTint="#3B82F6"
-                android:layout_marginTop="11dp" />
+                android:progressTint="@color/non_asd_color"
+                android:layout_marginTop="10dp" />
 
         </LinearLayout>
 
@@ -221,24 +239,24 @@
             android:text="Original Image"
             android:textSize="21sp"
             android:textStyle="bold"
-            android:textColor="#172033"
-            android:layout_marginBottom="11dp" />
+            android:textColor="@color/cyan"
+            android:layout_marginBottom="9dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#FFFFFF"
+            android:background="@drawable/bg_card"
             android:elevation="3dp"
-            android:padding="12dp"
-            android:layout_marginBottom="25dp">
+            android:padding="10dp"
+            android:layout_marginBottom="20dp">
 
             <ImageView
                 android:id="@+id/originalImage"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:scaleType="centerCrop"
-                android:background="#E2E8F0"
+                android:background="#7E9695"
                 android:contentDescription="Original facial image" />
 
         </LinearLayout>
@@ -254,17 +272,17 @@
             android:text="Explainable AI"
             android:textSize="21sp"
             android:textStyle="bold"
-            android:textColor="#172033"
-            android:layout_marginBottom="6dp" />
+            android:textColor="@color/cyan"
+            android:layout_marginBottom="5dp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Grad-CAM highlights the facial regions that contributed most to the model's prediction."
             android:textSize="14sp"
-            android:textColor="#64748B"
+            android:textColor="@color/header_subtitle"
             android:lineSpacingExtra="2dp"
-            android:layout_marginBottom="15dp" />
+            android:layout_marginBottom="12dp" />
 
 
         <!-- ================================================= -->
@@ -276,7 +294,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:weightSum="2"
-            android:layout_marginBottom="25dp">
+            android:layout_marginBottom="20dp">
 
 
             <!-- HEATMAP -->
@@ -286,10 +304,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_card"
                 android:elevation="3dp"
-                android:padding="10dp"
-                android:layout_marginEnd="5dp">
+                android:padding="9dp"
+                android:layout_marginEnd="4dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -297,16 +315,16 @@
                     android:text="Heatmap"
                     android:textSize="15sp"
                     android:textStyle="bold"
-                    android:textColor="#374151"
+                    android:textColor="@color/text_primary"
                     android:gravity="center"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="7dp" />
 
                 <ImageView
                     android:id="@+id/heatmapImage"
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
                     android:scaleType="centerCrop"
-                    android:background="#E2E8F0"
+                    android:background="#7E9695"
                     android:contentDescription="Grad-CAM heatmap" />
 
             </LinearLayout>
@@ -319,10 +337,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:background="#FFFFFF"
+                android:background="@drawable/bg_card"
                 android:elevation="3dp"
-                android:padding="10dp"
-                android:layout_marginStart="5dp">
+                android:padding="9dp"
+                android:layout_marginStart="4dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -330,16 +348,16 @@
                     android:text="Overlay"
                     android:textSize="15sp"
                     android:textStyle="bold"
-                    android:textColor="#374151"
+                    android:textColor="@color/text_primary"
                     android:gravity="center"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="7dp" />
 
                 <ImageView
                     android:id="@+id/gradcamImage"
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
                     android:scaleType="centerCrop"
-                    android:background="#E2E8F0"
+                    android:background="#7E9695"
                     android:contentDescription="Grad-CAM overlay" />
 
             </LinearLayout>
@@ -356,9 +374,9 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:background="#FFF7ED"
-            android:padding="15dp"
-            android:layout_marginBottom="18dp">
+            android:background="@drawable/bg_notice"
+            android:padding="14dp"
+            android:layout_marginBottom="16dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -366,7 +384,7 @@
                 android:text="Important Notice"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#9A3412"
+                android:textColor="@color/notice_text"
                 android:gravity="center"
                 android:layout_marginBottom="4dp" />
 
@@ -375,8 +393,9 @@
                 android:layout_height="wrap_content"
                 android:text="⚠ Screening result only — not a medical diagnosis."
                 android:textSize="12sp"
-                android:textColor="#7C2D12"
+                android:textColor="@color/notice_text"
                 android:gravity="center" />
+
 
         </LinearLayout>
 
@@ -390,33 +409,33 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:weightSum="2"
-            android:layout_marginBottom="25dp">
+            android:layout_marginBottom="20dp">
 
             <Button
                 android:id="@+id/saveResultButton"
                 android:layout_width="0dp"
-                android:layout_height="52dp"
+                android:layout_height="50dp"
                 android:layout_weight="1"
                 android:text="↓ Save Result"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:backgroundTint="#172033"
-                android:layout_marginEnd="6dp" />
+                android:textColor="@color/primary_navy"
+                android:background="@drawable/bg_primary_button"
+                android:layout_marginEnd="5dp" />
 
             <Button
                 android:id="@+id/backButton"
                 android:layout_width="0dp"
-                android:layout_height="52dp"
+                android:layout_height="50dp"
                 android:layout_weight="1"
                 android:text="Another Image"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textAllCaps="false"
-                android:textColor="#2563EB"
-                android:backgroundTint="#E8F0FE"
-                android:layout_marginStart="6dp" />
+                android:textColor="@color/primary_navy"
+                android:background="@drawable/bg_primary_button"
+                android:layout_marginStart="5dp" />
 
         </LinearLayout>
 
@@ -430,14 +449,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:paddingTop="5dp"
-            android:paddingBottom="20dp">
+            android:paddingTop="4dp"
+            android:paddingBottom="18dp">
 
             <View
-                android:layout_width="55dp"
+                android:layout_width="70dp"
                 android:layout_height="2dp"
-                android:background="#CBD5E1"
-                android:layout_marginBottom="11dp" />
+                android:background="#F7C89F"
+                android:layout_marginBottom="9dp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -445,7 +464,7 @@
                 android:text="ASD Detection using RegNetY-800MF"
                 android:textSize="13sp"
                 android:textStyle="bold"
-                android:textColor="#475569"
+                android:textColor="@color/header_text"
                 android:gravity="center" />
 
             <TextView
@@ -453,9 +472,18 @@
                 android:layout_height="wrap_content"
                 android:text="AI-Based Research Project"
                 android:textSize="12sp"
-                android:textColor="#94A3B8"
+                android:textColor="@color/header_subtitle"
                 android:gravity="center"
                 android:layout_marginTop="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Deep Learning • Computer Vision • Explainable AI"
+                android:textSize="11sp"
+                android:textColor="@color/header_subtitle"
+                android:gravity="center"
+                android:layout_marginTop="3dp" />
 
         </LinearLayout>
 

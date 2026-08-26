@@ -1,9 +1,21 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.ASDDetection" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.ASDDetection"
+        parent="Theme.Material3.DayNight.NoActionBar">
+
+        <item name="android:fontFamily">sans</item>
+
+        <!-- Screen colors -->
+        <item name="android:statusBarColor">@color/dark_navy</item>
+        <item name="android:navigationBarColor">@color/dark_navy</item>
+        <item name="android:windowBackground">@color/background</item>
+
+        <!-- App colors -->
+        <item name="colorPrimary">@color/button_orange</item>
+        <item name="colorPrimaryVariant">@color/button_orange</item>
+        <item name="colorAccent">@color/button_orange</item>
+
     </style>
 
-    <style name="Theme.ASDDetection" parent="Base.Theme.ASDDetection" />
 </resources>

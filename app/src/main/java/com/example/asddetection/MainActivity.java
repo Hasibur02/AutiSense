@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,7 +62,17 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView selectedImage;
 
-    private LinearLayout selectedImageContainer;
+    /*
+     * IMPORTANT:
+     * This is View instead of LinearLayout.
+     *
+     * Because selectedImageContainer in XML may be
+     * FrameLayout/CardView/LinearLayout.
+     *
+     * This prevents:
+     * FrameLayout cannot be cast to LinearLayout
+     */
+    private View selectedImageContainer;
 
     private TextView resultText;
     private TextView instructionText;
@@ -219,6 +228,14 @@ public class MainActivity extends AppCompatActivity {
         selectedImage =
                 findViewById(R.id.selectedImage);
 
+        /*
+         * IMPORTANT FIX:
+         *
+         * Do NOT cast this to LinearLayout.
+         *
+         * View can safely reference FrameLayout,
+         * LinearLayout, CardView, etc.
+         */
         selectedImageContainer =
                 findViewById(R.id.selectedImageContainer);
 
@@ -424,7 +441,6 @@ public class MainActivity extends AppCompatActivity {
 
                         cameraProvider =
                                 cameraProviderFuture.get();
-
 
                         bindCamera();
 

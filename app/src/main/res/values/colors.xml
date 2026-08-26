@@ -1,5 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
+    <!-- Main Theme -->
+    <color name="app_background">#415956</color>
+    <color name="background">#415956</color>
+
+    <!-- Card -->
+    <color name="card_background">#9FB8B9</color>
+
+    <!-- Button -->
+    <color name="button_orange">#F7C89F</color>
+    <color name="button_color">#F7C89F</color>
+    <color name="button_text">#172033</color>
+
+    <!-- Text -->
+    <color name="primary_navy">#172033</color>
+    <color name="dark_navy">#172033</color>
+    <color name="navy">#172033</color>
+
+    <color name="header_text">#FFFFFF</color>
+    <color name="header_subtitle">#E8EEEE</color>
+
+    <color name="text_primary">#172033</color>
+    <color name="text_secondary">#304543</color>
+    <color name="text_muted">#5F6F70</color>
+
+    <!-- Option -->
+    <color name="option_background">#9FB8B9</color>
+    <color name="option_border">#789493</color>
+
+    <!-- Badge -->
+    <color name="badge_background">#F7C89F</color>
+
+    <!-- Image -->
+    <color name="image_background">#D8E2E2</color>
+
+    <!-- ASD -->
+    <color name="asd_color">#B83B3B</color>
+    <color name="non_asd_color">#245F8A</color>
+
+    <!-- Notice -->
+    <color name="notice_background">#F7C89F</color>
+    <color name="notice_text">#5C3925</color>
+
+    <!-- Other required colors -->
+    <color name="cyan">#F7C89F</color>
+    <color name="divider">#D3DEDE</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
 </resources>
